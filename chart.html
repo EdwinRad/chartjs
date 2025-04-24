@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chart.js für Einsteiger – Schritt-für-Schritt-Tutorial</title>
+  <!-- Chart.js via CDN laden -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 22px; line-height: 1.7; }
+    h1, h2, h3 { color: #333; }
+    .chart-box { max-width: 620px; margin: 30px auto; }
+    canvas   { width: 100%; height: 320px; background: #fff; border: 1px solid #ccc; }
+    pre      { background: #f4f4f4; padding: 12px; border-radius: 4px; overflow-x: auto; }
+    code     { font-family: monospace; }
+  </style>
+</head>
+<body>
+  <h1>Chart.js für Einsteiger</h1>
+  <p>
+    Dieses Tutorial führt dich Schritt für Schritt durch dein erstes Balkendiagramm – komplett ohne Vorwissen.
+    Jedes Kapitel erklärt erst <strong>warum</strong> du etwas machst, zeigt dann den <strong>Code</strong>,
+    schließlich das <strong>fertige Ergebnis</strong> und endet mit einer kleinen <strong>Aufgabe</strong>,
+    um das Gelernte direkt anzuwenden.  
+</p>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>1 · Grundgerüst einrichten</h2>
+  <p>
+    Damit das Diagramm funktioniert, brauchst du nur zwei Dinge:
+  </p>
+  <ol>
+    <li>eine normale <code>&lt;canvas&gt;</code>-Fläche als Platzhalter für das Chart</li>
+    <li>den Chart.js-Skript-Tag, damit der Browser die Bibliothek kennt</li>
+  </ol>
+  <p>So sieht das Minimal-Gerüst aus – kopiere es in <em>index.html</em> und speichere:</p>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="de"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Mein erstes Chart&lt;/title&gt;
+  &lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;canvas id="meinChart" width="600" height="400"&gt;&lt;/canvas&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+  <p>
+    Öffne die Datei im Browser – du siehst nur ein leeres Rechteck. Im nächsten Schritt
+    bringen wir Leben hinein.
+  </p>
+  <div class="task">
+    <strong>Aufgabe 1:</strong> Erstelle eine eigene Datei <code>mein_chart.html</code>, binde den CDN‑Link ein und lege ein Canvas mit der ID <code>eigenesChart</code> an.
+  </div>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>2 · Dein erstes Balkendiagramm</h2>
+  <p>
+    Ein Balkendiagramm braucht drei Kernbausteine:
+  </p>
+  <ul>
+    <li><strong>Labels</strong> – Text unter jedem Balken (X-Achse)</li>
+    <li><strong>Daten</strong> – Zahlenhöhe der Balken (Y-Achse)</li>
+    <li><strong>Typ</strong> – hier <code>bar</code> für „bar chart“</li>
+  </ul>
+  <pre><code>&lt;script&gt;
+// 1 · Beschriftungen
+const labels = ['Januar', 'Februar', 'März'];
+// 2 · Werte
+const daten  = [10, 20, 15];
+// 3 · Chart aufbauen
+const ctx = document.getElementById('meinChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: 'Umsatz in €',        // erscheint in der Legende
+      data:  daten,               // Zahlen
+      backgroundColor: 'steelblue'// Balkenfarbe
+    }]
+  }
+});
+&lt;/script&gt;</code></pre>
+  <p>Speichere & aktualisiere den Browser – dein erstes Chart ist da! 👉 Ändere testweise einen Wert in <code>daten</code> oder die Farbe, um direkt den Effekt zu sehen.</p>
+
+  <!-- Live-Demo -->
+  <div class="chart-box"><canvas id="demoChart"></canvas></div>
+  <script>
+    const demoCtx = document.getElementById('demoChart').getContext('2d');
+    new Chart(demoCtx, {
+      type: 'bar',
+      data: { labels:['Januar','Februar','März'], datasets:[{ label:'Umsatz in €', data:[10,20,15], backgroundColor:'steelblue' }] }
+    });
+  </script>
+  <div class="task">
+    <strong>Aufgabe 2:</strong> Füge einen vierten Monat „April“ mit dem Wert <code>18</code> hinzu und ändere die Balkenfarbe auf <code>orange</code>.
+  </div>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>3 · Y-Achse anpassen</h2>
+  <p>
+    Standardmäßig startet die Y-Achse bei 0. Möchtest du sie<br />z. B. bei 20 beginnen lassen, setzt du
+    <code>scales.y.min = 20</code>. So zoomst du in interessante Wertebereiche.
+  </p>
+  <pre><code>// Y-Achse ab 0 (Standard)
+new Chart(ctx0, {
+  type:'bar',
+  data:{ labels:['A','B','C'], datasets:[{label:'ab 0', data:[30,50,70]}] },
+  options:{ scales:{ y:{ min:0 } } }
+});
+
+// Y-Achse ab 20
+new Chart(ctx20, {
+  type:'bar',
+  data:{ labels:['A','B','C'], datasets:[{label:'ab 20', data:[30,50,70]}] },
+  options:{ scales:{ y:{ min:20, max:100 } } }
+});</code></pre>
+  <div class="chart-box"><canvas id="y0"></canvas></div>
+  <div class="chart-box"><canvas id="y20"></canvas></div>
+  <script>
+    const ctx0  = document.getElementById('y0').getContext('2d');
+    const ctx20 = document.getElementById('y20').getContext('2d');
+    new Chart(ctx0 ,{type:'bar',data:{labels:['A','B','C'],datasets:[{label:'ab 0',data:[30,50,70],backgroundColor:'#66bb6a'}]},options:{scales:{y:{min:0}}}});
+    new Chart(ctx20,{type:'bar',data:{labels:['A','B','C'],datasets:[{label:'ab 20',data:[30,50,70],backgroundColor:'#ef5350'}]},options:{scales:{y:{min:20,max:100}}}});
+  </script>
+  <div class="task">
+    <strong>Aufgabe 3:</strong> Setze die Y‑Achse so, dass sie bei <code>10</code> beginnt und bei <code>80</code> endet. Beobachte, wie sich die Balkenhöhe optisch verändert.
+  </div>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>4 · Farben & Tooltips</h2>
+  <p>
+    Jeder Balken kann seine eigene Farbe haben. Tooltips erscheinen, wenn du mit der Maus
+    über einen Balken fährst. Beides lässt sich steuern:
+  </p>
+  <pre><code>new Chart(ctx, {
+  type:'bar',
+  data:{ labels:['J','F','M'], datasets:[{
+    label:'Farben',
+    data:[10,20,15],
+    backgroundColor:['red','blue','green'] // drei Farben
+  }]},
+  options:{ plugins:{
+    legend: { display:false }, // Legende aus
+    tooltip:{ enabled:false }  // Tooltips aus
+  }}
+});</code></pre>
+  <div class="chart-box"><canvas id="colorChart"></canvas></div>
+  <script>
+    new Chart(document.getElementById('colorChart').getContext('2d'),{
+      type:'bar',
+      data:{labels:['J','F','M'],datasets:[{label:'Farben',data:[10,20,15],backgroundColor:['red','blue','green']}]},
+      options:{plugins:{legend:{display:false},tooltip:{enabled:false}}}
+    });
+  </script>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>5 · Mehrere Datensätze vergleichen</h2>
+  <p>
+    Um z. B. Umsatz und Kosten parallel zu zeigen, fügst du ein zweites
+    <code>dataset</code> hinzu:
+  </p>
+  <pre><code>new Chart(ctx, {
+  type:'bar',
+  data:{
+    labels:['J','F','M'],
+    datasets:[
+      { label:'Umsatz', data:[30,50,70], backgroundColor:'green' },
+      { label:'Kosten', data:[20,40,60], backgroundColor:'crimson' }
+    ]
+  }
+});</code></pre>
+  <div class="chart-box"><canvas id="multiChart"></canvas></div>
+  <script>
+    new Chart(document.getElementById('multiChart').getContext('2d'),{
+      type:'bar',
+      data:{labels:['J','F','M'],datasets:[{label:'Umsatz',data:[30,50,70],backgroundColor:'green'},{label:'Kosten',data:[20,40,60],backgroundColor:'crimson'}]}
+    });
+  </script>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>6 · Achsentitel & Beschriftung</h2>
+  <p>
+    Damit sofort klar ist, was die Zahlen bedeuten, kannst du deinen Achsen Titel geben:
+  </p>
+  <pre><code>options:{
+  scales:{
+    y:{ title:{ display:true, text:'Euro (€)' } },
+    x:{ title:{ display:true, text:'Monat' } }
+  }
+}</code></pre>
+  <div class="chart-box"><canvas id="titleChart"></canvas></div>
+  <script>
+    new Chart(document.getElementById('titleChart').getContext('2d'),{
+      type:'line',
+      data:{labels:['J','F','M'],datasets:[{label:'Linie',data:[10,20,15],borderColor:'purple',tension:0.3,fill:false}]},
+      options:{scales:{y:{title:{display:true,text:'Euro (€)'}},x:{title:{display:true,text:'Monat'}}}}
+    });
+  </script>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>7 · Dein nächster Schritt</h2>
+  <p>
+    Glückwunsch! Du hast jetzt die wichtigsten Grundlagen in der Hand. Experimentiere weiter:
+  </p>
+  <h2>8 · Praxisprojekte (größere Aufgaben)</h2>
+  <p>Bereit für die Kür? Versuche dich an diesen zwei umfangreicheren Projekten – jedes kombiniert mehrere Lernbausteine.</p>
+
+  <!-- ——————————————————————————————————————————— -->
+  <div class="task">
+    <strong>Große Aufgabe 1 – Mini‑Dashboard:</strong>
+    <p>Baue eine kleine „Business‑Übersicht“ mit <strong>zwei Charts</strong> nebeneinander:</p>
+    <ul>
+      <li>links ein Balkendiagramm (monatlicher Umsatz)</li>
+      <li>rechts ein Liniendiagramm (kumulierte Gesamtsumme)</li>
+    </ul>
+    <p>Nutze folgende Datensätze:</p>
+    <pre><code>// Labels (für beide Charts)
+const labels = ['Jan','Feb','Mär','Apr','Mai','Jun'];
+
+// Umsatz (in T€)
+const umsatz   = [12, 18, 15, 20, 25, 30];
+
+// Kumuliert (laufende Summe)
+const kumuliert = [12, 30, 45, 65, 90, 120];</code></pre>
+    <details><summary>Tipps ansehen</summary>
+      <ul>
+        <li>Lege zwei &lt;canvas&gt;-Elemente nebeneinander, z.&nbsp;B. mit Flexbox.</li>
+        <li>Erstelle <code>ctxBar</code> und <code>ctxLine</code> jeweils mit <code>getContext('2d')</code>.</li>
+        <li>Nutze für den Balken-Chart <code>type:'bar'</code>, für den kumulierten Chart <code>type:'line'</code> und setze <code>fill:false</code>.</li>
+        <li>Vergiss nicht, bei beiden Charts <code>labels</code> identisch zu setzen.</li>
+      </ul>
+    </details>
+  </div>
+  <div class="task">
+    <strong>Große Aufgabe 2 – Finanz‑Charts:</strong>
+    <p>Baue in dein Bootstrap‑Dashboard <strong>zwei Charts</strong> ein, die nebeneinander angezeigt werden:</p>
+    <ul>
+      <li><strong>DAX</strong> – Linien‑Chart mit den Punkten der letzten 6 Tage</li>
+      <li><strong>EUR / USD</strong> – Balken‑Chart mit dem Wechselkurs derselben Tage</li>
+    </ul>
+    <p>
+      Tipp: Übernimm das Flexbox‑Gerüst aus Aufgabe 1 (<code>.dashboard</code> mit zwei&nbsp;<code>&lt;canvas&gt;</code>‑Elementen) und erstelle je einen&nbsp;<code>ctx</code> für DAX und EUR&nbsp;/&nbsp;USD.
+      Nutze Beispielwerte aus dem Mini‑Dashboard‑Beispiel oder eigene aktuelle Daten.
+    </p>
+  </div>
+
+</body>
+</html>

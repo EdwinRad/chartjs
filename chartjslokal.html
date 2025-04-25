@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chart.js – Daten aus lokaler JSON</title>
+  <!-- Chart.js laden -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1, h2 {
+      color: #005a9c;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: monospace;
+    }
+    .chart-container {
+      max-width: 700px;
+      margin: 30px auto;
+    }
+    .task {
+      border-left: 4px solid #007acc;
+      background: #f0f8ff;
+      padding: 12px;
+      margin: 20px 0;
+    }
+    .explanation {
+      background: #eef7ff;
+      border-left: 4px solid #005a9c;
+      padding: 12px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Chart.js: Daten aus lokaler JSON-Datei</h1>
+  <p>In diesem Tutorial lernst du, wie du deine Chart-Daten aus einer externen <code>daten.json</code>-Datei lädst und damit ein Balkendiagramm erstellst.</p>
+
+  <!-- 1 · JSON-Datei erstellen -->
+  <h2>1 · JSON-Datei erstellen</h2>
+  <p>Lege im gleichen Ordner eine Datei <code>daten.json</code> an mit diesem Inhalt:</p>
+  <pre><code>{
+  "labels": [
+    "Jan 2023", "Feb 2023", "Mär 2023", "Apr 2023", "Mai 2023", "Jun 2023",
+    "Jul 2023", "Aug 2023", "Sep 2023", "Okt 2023", "Nov 2023", "Dez 2023",
+    "Jan 2024", "Feb 2024", "Mär 2024", "Apr 2024", "Mai 2024", "Jun 2024",
+    "Jul 2024", "Aug 2024", "Sep 2024", "Okt 2024", "Nov 2024", "Dez 2024"
+  ],
+  "umsatz": [
+    17, 19, 23, 17, 19, 27, 31, 26, 18, 23, 18, 22,
+    18, 23, 23, 23, 19, 26, 29, 28, 23, 23, 19, 29
+  ]
+}</code></pre>
+
+  <!-- 2 · HTML-Grundgerüst -->
+  <h2>2 · HTML-Grundgerüst</h2>
+  <p>Erstelle eine Datei <code>chart-mit-json.html</code> mit diesem Inhalt:</p>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="de"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Chart aus JSON&lt;/title&gt;
+  &lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h2&gt;Umsatz über 2 Jahre&lt;/h2&gt;
+  &lt;canvas id="jsonChart" width="700" height="400"&gt;&lt;/canvas&gt;
+
+  &lt;!-- Hier kommt das Skript --&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <!-- 3 · fetch & Chart -->
+  <h2>3 · Daten per <code>fetch</code> laden und Chart bauen</h2>
+  <p>Füge vor <code>&lt;/body&gt;</code> folgendes Skript ein:</p>
+  <pre><code>&lt;script&gt;
+fetch('daten.json')
+  .then(res =&gt; res.json())
+  .then(data =&gt; {
+    const ctx = document.getElementById('jsonChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels:      data.labels,
+        datasets: [{
+          label:           'Umsatz in T€',
+          data:            data.umsatz,
+          backgroundColor: 'teal'
+        }]
+      },
+      options: {
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  });
+&lt;/script&gt;</code></pre>
+
+  <!-- 4 · Zeile für Zeile Erklärung -->
+  <h2>4 · JavaScript-Zeile für Zeile erklärt</h2>
+  <div class="explanation">
+    <pre><code>fetch('daten.json')
+  .then(res => res.json())
+  .then(data => {
+    const ctx = document.getElementById('jsonChart').getContext('2d');
+    // hier kommt der Chart-Aufruf…
+});</code></pre>
+    <ul>
+      <li><strong>fetch('daten.json')</strong><br>
+        Startet den Abruf der Datei <code>daten.json</code>.  
+        <em>fetch</em> gibt sofort ein <strong>Promise</strong> zurück – stell dir das vor wie ein Ticket, das verspricht, dir später die angefragten Daten zu bringen.</li>
+
+      <li><strong>Promise</strong><br>
+        Ein Objekt, das ein zukünftiges Ergebnis ankündigt.  
+        Beispiel:  
+        <pre><code>const pizzaTicket = bestellePizza('Margherita');
+// sofort hast du ein Ticket, aber die Pizza kommt später
+pizzaTicket.then(pizza => {
+  console.log('Pizza ist da:', pizza);
+});</code></pre>
+        Genauso: <code>fetch</code> gibt ein Ticket, und mit <code>.then</code> sagst du, was passieren soll, wenn die Daten wirklich da sind.</li>
+
+      <li><strong>.then(res =&gt; res.json())</strong><br>
+        Wartet darauf, dass die Antwort (<code>res</code>) eintrifft, und wandelt den Text in ein JavaScript-Objekt um.  
+        Auch <code>res.json()</code> liefert wieder ein neues Promise – es ist wie eine zweite Bestellung: „Okay, mach aus dem Rohtext jetzt ein Menü.“</li>
+
+      <li><strong>.then(data =&gt; { … })</strong><br>
+        Wenn das JSON geparst ist, enthält <code>data</code> dein komplettes Objekt aus der Datei.  
+        Ab hier kannst du <code>data.labels</code> und <code>data.umsatz</code> verwenden.</li>
+
+      <li><strong>document.getElementById('jsonChart')</strong><br>
+        Sucht im HTML das <code>&lt;canvas id="jsonChart"&gt;</code>-Element.</li>
+
+      <li><strong>.getContext('2d')</strong><br>
+        Holt vom Canvas den 2D-Zeichen-Kontext.  
+        Mit diesem <code>ctx</code> kann Chart.js das Diagramm zeichnen.</li>
+    </ul>
+  </div>
+
+
+  <!-- 5 · Live-Demo -->
+  <h2>5 · Live-Demo</h2>
+  <div class="chart-container">
+    <canvas id="jsonDemo"></canvas>
+  </div>
+  <script>
+    // Demo-Daten inline
+    const demoData = {
+      labels: [
+        "Jan 2023","Feb 2023","Mär 2023","Apr 2023","Mai 2023","Jun 2023",
+        "Jul 2023","Aug 2023","Sep 2023","Okt 2023","Nov 2023","Dez 2023",
+        "Jan 2024","Feb 2024","Mär 2024","Apr 2024","Mai 2024","Jun 2024",
+        "Jul 2024","Aug 2024","Sep 2024","Okt 2024","Nov 2024","Dez 2024"
+      ],
+      umsatz: [
+        17,19,23,17,19,27,31,26,18,23,18,22,
+        18,23,23,23,19,26,29,28,23,23,19,29
+      ]
+    };
+    const ctxDemo = document.getElementById('jsonDemo').getContext('2d');
+    new Chart(ctxDemo, {
+      type:'bar',
+      data:{ labels:demoData.labels, datasets:[{ label:'Umsatz in T€', data:demoData.umsatz, backgroundColor:'teal' }] },
+      options:{ scales:{ y:{ beginAtZero:true } } }
+    });
+  </script>
+
+  <!-- Aufgaben -->
+  <div class="task">
+    <strong>Aufgabe 1:</strong><br>
+    Erstelle die Datei <code>daten.json</code> mit den 24 Monats-Einträgen und lege sie neben deine HTML-Datei.
+  </div>
+  <div class="task">
+    <strong>Aufgabe 2:</strong><br>
+    Erweitere <code>daten.json</code> um ein Feld <code>"color"</code> für jede Farbe und nutze es als <code>backgroundColor</code>.
+  </div>
+  <div class="task">
+    <strong>Aufgabe 3:</strong><br>
+    Setze die Y-Achse zwischen 10 und 40: <code>options.scales.y.min = 10</code> und <code>options.scales.y.max = 40</code>.
+  </div>
+  <h1>Chart.js: Zwei Charts aus einer JSON-Datei</h1>
+  <p>
+    In diesem Mini-Tutorial speichert ihr zwei Datensätze in einer einzigen <code>daten.json</code> und
+    zeigt sie in zwei separaten Charts an.
+  </p>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>1 · JSON mit zwei Datensätzen</h2>
+  <p>Erstellt im gleichen Ordner die Datei <code>daten.json</code> mit diesem Inhalt:</p>
+  <pre><code>{
+  "labels": ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun"],
+  "dataset1": {
+    "label": "Umsatz 2024 in T€",
+    "werte": [12, 15, 14, 18, 20, 22]
+  },
+  "dataset2": {
+    "label": "Kosten 2024 in T€",
+    "werte": [ 8, 10,  9, 12, 14, 16]
+  }
+}</code></pre>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>2 · HTML-Grundgerüst mit zwei Canvas</h2>
+  <p>Legt die Datei <code>zwei-charts.html</code> an und bindet Chart.js über CDN ein:</p>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="de"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Zwei Charts aus JSON&lt;/title&gt;
+  &lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h2&gt;Umsatz &amp; Kosten (2024)&lt;/h2&gt;
+
+  &lt;div class="chart-container"&gt;
+    &lt;div class="chart-box"&gt;
+      &lt;canvas id="chartUmsatz"&gt;&lt;/canvas&gt;
+    &lt;/div&gt;
+    &lt;div class="chart-box"&gt;
+      &lt;canvas id="chartKosten"&gt;&lt;/canvas&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- fetch- und Chart-Skript kommt hierhin --&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>3 · fetch und zwei Chart-Instanzen</h2>
+  <p>Fügt direkt vor dem schließenden <code>&lt;/body&gt;</code>-Tag folgendes Skript ein:</p>
+  <pre><code>&lt;script&gt;
+fetch('daten.json')
+  .then(res => res.json())
+  .then(data => {
+    // 1 · Umsatz-Chart (Bar mit Standardfarbe)
+    const ctxU = document.getElementById('chartUmsatz').getContext('2d');
+    new Chart(ctxU, {
+      type: 'bar',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: data.dataset1.label,
+          data:  data.dataset1.werte
+        }]
+      },
+      options: { scales:{ y:{ beginAtZero:true } } }
+    });
+
+    // 2 · Kosten-Chart (Line mit Standardfarbe)
+    const ctxK = document.getElementById('chartKosten').getContext('2d');
+    new Chart(ctxK, {
+      type: 'line',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label:    data.dataset2.label,
+          data:     data.dataset2.werte,
+          fill:     false,
+          tension:  0.3
+        }]
+      },
+      options: { scales:{ y:{ beginAtZero:true } } }
+    });
+  });
+&lt;/script&gt;</code></pre>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <!-- 4 · So greift ihr auf die Datensätze zu -->
+  <h2>4 · So greift ihr auf die Datensätze zu</h2>
+
+  <p>Schaut euch zuerst eure <code>daten.json</code> an. Sie enthält drei Felder:</p>
+  <pre><code>{
+  "labels": ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun"],
+
+  "dataset1": {
+    "label": "Umsatz 2024 in T€",
+    "werte": [12, 15, 14, 18, 20, 22]
+  },
+
+  "dataset2": {
+    "label": "Kosten 2024 in T€",
+    "werte": [ 8, 10,  9, 12, 14, 16]
+  }
+}</code></pre>
+
+  <p>Im Skript landen diese Daten in der Variable <code>data</code>. Ihr sprecht sie so an:</p>
+  <ul>
+    <li>
+      <strong><code>data.labels</code></strong><br>
+      Greift auf das Array <code>["Jan","Feb",…]</code> zu.  
+      Diese Werte werden der X-Achse aller Charts übergeben.
+    </li>
+    <li>
+      <strong><code>data.dataset1.werte</code></strong><br>
+      Greift auf das Array <code>[12,15,14,18,20,22]</code> zu.  
+      Diese Zahlen sind die Y-Werte für das erste Diagramm (Umsatz).
+    </li>
+    <li>
+      <strong><code>data.dataset1.label</code></strong><br>
+      Greift auf den String <code>"Umsatz 2024 in T€"</code> zu.  
+      Dieser Text erscheint in der Legende bzw. beim Hover-Tooltip des ersten Charts.
+    </li>
+    <li>
+      <strong><code>data.dataset2.werte</code></strong><br>
+      Greift auf das Array <code>[8,10,9,12,14,16]</code> zu.  
+      Diese Zahlen sind die Y-Werte für das zweite Diagramm (Kosten).
+    </li>
+    <li>
+      <strong><code>data.dataset2.label</code></strong><br>
+      Greift auf den String <code>"Kosten 2024 in T€"</code> zu.  
+      Dieser Text erscheint in der Legende bzw. beim Hover-Tooltip des zweiten Charts.
+    </li>
+  </ul>
+
+  <p>So stellt ihr sicher, dass ihr jedes Teil eurer JSON-Datei einzeln ansprechen könnt:</p>
+  <ul>
+    <li>Gemeinsame Achsen-Beschriftungen: <code>data.labels</code></li>
+    <li>Erstes Dataset (Bar Chart):  
+      <code>data.dataset1.werte</code> + <code>data.dataset1.label</code></li>
+    <li>Zweites Dataset (Line Chart):  
+      <code>data.dataset2.werte</code> + <code>data.dataset2.label</code></li>
+  </ul>
+
+  <p>Im Skript sieht das dann so aus:</p>
+  <pre><code>fetch('daten.json')
+  .then(res => res.json())
+  .then(data => {
+    // Bar-Chart mit dataset1
+    new Chart(ctx1, {
+      data: {
+        labels:   data.labels,
+        datasets: [{
+          label: data.dataset1.label,
+          data:  data.dataset1.werte
+        }]
+      }
+    });
+
+    // Line-Chart mit dataset2
+    new Chart(ctx2, {
+      data: {
+        labels:   data.labels,
+        datasets: [{
+          label: data.dataset2.label,
+          data:  data.dataset2.werte
+        }]
+      }
+    });
+  });</code></pre>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <h2>5 · Live-Demo</h2>
+  <div class="chart-container">
+    <div class="chart-box"><canvas id="demoUms"></canvas></div>
+    <div class="chart-box"><canvas id="demoKos"></canvas></div>
+  </div>
+  <script>
+    // Demo-Daten inline
+    const data = {
+      labels: ["Jan","Feb","Mär","Apr","Mai","Jun"],
+      dataset1: { label:"Umsatz 2024 in T€", werte:[12,15,14,18,20,22] },
+      dataset2: { label:"Kosten 2024 in T€", werte:[8,10,9,12,14,16] }
+    };
+    const ctxU2 = document.getElementById('demoUms').getContext('2d');
+    new Chart(ctxU2, {
+      type: 'bar',
+      data: { labels:data.labels, datasets:[{ label:data.dataset1.label, data:data.dataset1.werte }] },
+      options:{ scales:{ y:{ beginAtZero:true } } }
+    });
+    const ctxK2 = document.getElementById('demoKos').getContext('2d');
+    new Chart(ctxK2, {
+      type: 'line',
+      data: { labels:data.labels, datasets:[{ label:data.dataset2.label, data:data.dataset2.werte, fill:false, tension:0.3 }] },
+      options:{ scales:{ y:{ beginAtZero:true } } }
+    });
+  </script>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <div class="task">
+    <strong>Aufgabe:</strong><br>
+    1. Legt die beiden Canvas-Elemente und die <code>fetch</code>-Logik wie oben an.<br>
+    2. Erweitert eure <code>daten.json</code> um ein drittes Dataset (<code>dataset3</code>) und zeigt es in einem dritten Diagramm an – wieder ohne Farben zu definieren.
+  </div>
+
+</body>
+</html>
